@@ -25,7 +25,12 @@ export function newInMemoryEventStore(): InMemoryEventStore {
 
     async loadEvents(_ctx: Context, entity: Entity, minSequence: number): Promise<DomainEvent[]> {
       const events = data.get(entityKey(entity)) ?? [];
-      return events.filter((event) => event.getSequence() >= minSequence);
+      if (minSequence <= 0) {
+        return events.slice();
+      }
+
+      const start = events.findIndex((event) => event.getSequence() >= minSequence);
+      return start === -1 ? [] : events.slice(start);
     },
 
     async saveEvents(
@@ -35,14 +40,18 @@ export function newInMemoryEventStore(): InMemoryEventStore {
       expectedSequence: number,
     ): Promise<void> {
       const key = entityKey(entity);
-      const existing = data.get(key) ?? [];
-      const currentSequence = existing.length;
+      const existing = data.get(key);
+      const currentSequence = existing?.length ?? 0;
 
       if (expectedSequence !== currentSequence) {
         throw new ConcurrencyError(expectedSequence, currentSequence);
       }
 
-      data.set(key, [...existing, ...events]);
+      if (existing) {
+        existing.push(...events);
+      } else {
+        data.set(key, [...events]);
+      }
     },
   };
 }

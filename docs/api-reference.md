@@ -6,7 +6,7 @@ This file summarizes the public API surface exported by `es-ts`.
 
 - `DomainEvent`
 - `EventDescriptor<E, P>`
-- `defineEvent<P, E>(discriminator: string, area: string)`
+- `defineEvent<P, E>(area: string, discriminator: string)`
 - `createDomainEvent<T>(discriminator: string, area: string, payload: T)`
 - `registerEvent(descriptor)`
 - `serializeEvent(event)`

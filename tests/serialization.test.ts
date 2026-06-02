@@ -1,13 +1,11 @@
 import { beforeAll, describe, expect, it } from "vitest";
-import { deserializeEvent, registerEvent, serializeEvent } from "../src/domain-event";
-import { catAdopted } from "./events/cat-adopted";
-import { catRenamed } from "./events/cat-renamed";
+import { deserializeEvent, serializeEvent } from "../src/domain-event";
+import { catAdopted, catRenamed, registerEvents } from "./events";
 import { Scope } from "../src/scope";
 
 describe("Polymorphic event serialization", () => {
   beforeAll(() => {
-    registerEvent(catAdopted);
-    registerEvent(catRenamed);
+    registerEvents();
   });
 
   it("should round-trip a typed domain event given a registered descriptor when serializeEvent is called", () => {

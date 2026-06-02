@@ -3,7 +3,7 @@ import { defineEvent } from "../../src/domain-event";
 import { newEntity } from "../../src/entity";
 import { newInMemoryEventStore } from "../../src/in-memory-store";
 
-const descriptor = defineEvent<{ name: string }>("bench.store", "tests");
+const descriptor = defineEvent<{ name: string }>("tests", "bench.store");
 const entity = newEntity("store-bench", "tests");
 const event = descriptor.create({ name: "save" });
 

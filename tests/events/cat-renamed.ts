@@ -4,4 +4,4 @@ export interface CatRenamed extends DomainEvent {
   name: string;
 }
 
-export const catRenamed = defineEvent<{ name: string }, CatRenamed>("cat.renamed", "cats");
+export const catRenamed = defineEvent<{ name: string }, CatRenamed>("cats", "cat.renamed");

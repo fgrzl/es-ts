@@ -5,7 +5,7 @@ import { defineEvent } from "../src/domain-event";
 describe("Aggregate", () => {
   it("should apply a raised event given a registered handler when raise is called", () => {
     const aggregate = newAggregate("tests", "aggregate-1");
-    const eventDescriptor = defineEvent<{ value: string }>("aggregate.event", "tests");
+    const eventDescriptor = defineEvent<{ value: string }>("tests", "aggregate.event");
     let applied = "";
 
     aggregate.registerHandler(eventDescriptor, (event) => {
@@ -21,7 +21,7 @@ describe("Aggregate", () => {
 
   it("should move uncommitted events to committed given commit is called", () => {
     const aggregate = newAggregate("tests", "aggregate-1");
-    const eventDescriptor = defineEvent<{ value: string }>("aggregate.event", "tests");
+    const eventDescriptor = defineEvent<{ value: string }>("tests", "aggregate.event");
     aggregate.registerHandler(eventDescriptor, () => undefined);
     const event = eventDescriptor.create({ value: "hello" });
 
@@ -34,7 +34,7 @@ describe("Aggregate", () => {
   });
 
   it("should load committed events and apply registered handlers given load is called", () => {
-    const eventDescriptor = defineEvent<{ value: string }>("aggregate.load", "tests");
+    const eventDescriptor = defineEvent<{ value: string }>("tests", "aggregate.load");
     const event = eventDescriptor.create({ value: "loaded" });
     event.setMetadata({
       entity: { id: "aggregate-2", area: "tests", scope: 0 },
@@ -59,7 +59,7 @@ describe("Aggregate", () => {
 
   it("should reject duplicate handler registration given the same descriptor", () => {
     const aggregate = newAggregate("tests", "aggregate-3");
-    const eventDescriptor = defineEvent<{}>("aggregate.duplicate", "tests");
+    const eventDescriptor = defineEvent<{}>("tests", "aggregate.duplicate");
 
     aggregate.registerHandler(eventDescriptor, () => undefined);
 
@@ -70,7 +70,7 @@ describe("Aggregate", () => {
 
   it("should reject a raise event given the wrong area when raise is called", () => {
     const aggregate = newAggregate("tests", "aggregate-4");
-    const wrongEvent = defineEvent<{}>("aggregate.wrong", "other");
+    const wrongEvent = defineEvent<{}>("other", "aggregate.wrong");
 
     expect(() => aggregate.raise(wrongEvent.create({}))).toThrow(
       "Raise: aggregate area is not valid for event",
@@ -79,7 +79,7 @@ describe("Aggregate", () => {
 
   it("should reject an audit event given the wrong area when audit is called", () => {
     const aggregate = newAggregate("tests", "aggregate-4");
-    const wrongEvent = defineEvent<{}>("aggregate.wrong", "other");
+    const wrongEvent = defineEvent<{}>("other", "aggregate.wrong");
 
     expect(() => aggregate.audit(wrongEvent.create({}))).toThrow(
       "Audit: aggregate area is not valid for event",
@@ -88,7 +88,7 @@ describe("Aggregate", () => {
 
   it("should stage pending audits separately given audit is called", () => {
     const aggregate = newAggregate("tests", "aggregate-5");
-    const auditDescriptor = defineEvent<{}>("aggregate.audit", "tests");
+    const auditDescriptor = defineEvent<{}>("tests", "aggregate.audit");
     const event = auditDescriptor.create({});
 
     aggregate.audit(event);
@@ -98,7 +98,7 @@ describe("Aggregate", () => {
 
   it("should clear pending audits given discardPendingAudits is called", () => {
     const aggregate = newAggregate("tests", "aggregate-5");
-    const auditDescriptor = defineEvent<{}>("aggregate.audit", "tests");
+    const auditDescriptor = defineEvent<{}>("tests", "aggregate.audit");
     const event = auditDescriptor.create({});
 
     aggregate.audit(event);
@@ -109,7 +109,7 @@ describe("Aggregate", () => {
 
   it("should reject duplicate audit staging given the same event instance", () => {
     const aggregate = newAggregate("tests", "aggregate-6");
-    const auditDescriptor = defineEvent<{}>("aggregate.audit.unique", "tests");
+    const auditDescriptor = defineEvent<{}>("tests", "aggregate.audit.unique");
     const event = auditDescriptor.create({});
 
     aggregate.audit(event);
@@ -121,8 +121,8 @@ describe("Aggregate", () => {
 
   it("should trim pending audits given trimPendingAudits is called", () => {
     const aggregate = newAggregate("tests", "aggregate-7");
-    const a1 = defineEvent<{}>("aggregate.audit.a", "tests").create({});
-    const a2 = defineEvent<{}>("aggregate.audit.b", "tests").create({});
+    const a1 = defineEvent<{}>("tests", "aggregate.audit.a").create({});
+    const a2 = defineEvent<{}>("tests", "aggregate.audit.b").create({});
 
     aggregate.audit(a1);
     aggregate.audit(a2);

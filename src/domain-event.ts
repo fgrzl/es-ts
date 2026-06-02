@@ -53,7 +53,7 @@ export interface EventDescriptor<E extends DomainEvent, P extends DomainEventPay
 export function defineEvent<
   P extends DomainEventPayload,
   E extends DomainEvent & P = DomainEvent & P,
->(discriminator: string, area: string): EventDescriptor<E, P> {
+>(area: string, discriminator: string): EventDescriptor<E, P> {
   return {
     discriminator,
     area,
@@ -90,11 +90,10 @@ export function createDomainEvent<T extends DomainEventPayload>(
       }
     },
     toJSON: () => {
-      const content: Record<string, unknown> = { ...payload };
-      if (metadata) {
-        content.metadata = toJsonEventMetadata(metadata);
+      if (!metadata) {
+        return payload;
       }
-      return content;
+      return { ...payload, metadata: toJsonEventMetadata(metadata) };
     },
   } as DomainEvent & T;
 
@@ -237,12 +236,11 @@ export function deserializeEvent(json: string): DomainEvent {
 
   const content = envelope.content as Record<string, unknown>;
   const metadata = content.metadata;
-  if (metadata !== undefined) {
+  if ("metadata" in content) {
     delete content.metadata;
   }
 
   const event = descriptor.create(content as DomainEventPayload);
-
   if (metadata !== undefined) {
     event.setMetadata(fromJsonEventMetadata(metadata));
   }

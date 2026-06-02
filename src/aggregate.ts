@@ -55,6 +55,7 @@ type AggregateState = {
   committed: DomainEvent[];
   uncommitted: DomainEvent[];
   pendingAudits: PendingAudit[];
+  stagedAudits: Set<DomainEvent>;
   handlers: Map<string, DomainEventHandler>;
 };
 
@@ -70,6 +71,7 @@ function createAggregateBase(
     committed: [],
     uncommitted: [],
     pendingAudits: [],
+    stagedAudits: new Set(),
     handlers: new Map(),
   };
 
@@ -136,7 +138,7 @@ function createAggregateBase(
     if (event.getArea() !== domainArea) {
       throw new Error(errAuditInvalidAggregateArea);
     }
-    if (eventAlreadyStaged(state.pendingAudits, event)) {
+    if (state.stagedAudits.has(event)) {
       throw new Error(errAuditEventStaged);
     }
 
@@ -151,6 +153,7 @@ function createAggregateBase(
       eventId: uuid(),
       timestamp: Date.now(),
     });
+    state.stagedAudits.add(event);
   };
 
   const load = (events: DomainEvent[]): void => {
@@ -161,21 +164,26 @@ function createAggregateBase(
   };
 
   const commit = (): void => {
-    state.committed = [...state.committed, ...state.uncommitted];
-    state.uncommitted = [];
+    state.committed.push(...state.uncommitted);
+    state.uncommitted.length = 0;
   };
 
   const getPendingAudits = (): PendingAudit[] => [...state.pendingAudits];
 
   const discardPendingAudits = (): void => {
     state.pendingAudits = [];
+    state.stagedAudits.clear();
   };
 
   const trimPendingAudits = (n: number): void => {
     if (n <= 0) {
       return;
     }
-    state.pendingAudits = state.pendingAudits.slice(n);
+
+    const removed = state.pendingAudits.splice(0, n);
+    for (const item of removed) {
+      state.stagedAudits.delete(item.event);
+    }
   };
 
   return {
@@ -221,8 +229,4 @@ export function newTenantAggregate(area: string, tenantId: string, id: string): 
     throw new Error(errNewAggregateEmptyArea);
   }
   return createAggregateBase({ id, area, tenantId, scope: Scope.Tenant });
-}
-
-function eventAlreadyStaged(pending: PendingAudit[], event: DomainEvent): boolean {
-  return pending.some((item) => item.event === event);
 }

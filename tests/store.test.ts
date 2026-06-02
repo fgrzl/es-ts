@@ -4,7 +4,7 @@ import { newInMemoryEventStore, ConcurrencyError } from "../src/in-memory-store"
 import { newEntity } from "../src/entity";
 
 describe("InMemoryEventStore", () => {
-  const descriptor = defineEvent<{ name: string }>("store.event", "tests");
+  const descriptor = defineEvent<{ name: string }>("tests", "store.event");
 
   it("should persist and load events given saved entity events", async () => {
     const store = newInMemoryEventStore();

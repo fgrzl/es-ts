@@ -1,7 +1,6 @@
 import { bench, beforeAll } from "vitest";
-import { registerEvent, serializeEvent, deserializeEvent } from "../../src/domain-event";
-import { catAdopted } from "../../tests/events/cat-adopted";
-import { catRenamed } from "../../tests/events/cat-renamed";
+import { serializeEvent, deserializeEvent } from "../../src/domain-event";
+import { catRenamed, registerEvents } from "../../tests/events";
 import { Scope } from "../../src/scope";
 
 let serialized: string;
@@ -17,8 +16,7 @@ event.setMetadata({
 });
 
 beforeAll(() => {
-  registerEvent(catRenamed);
-  registerEvent(catAdopted);
+  registerEvents();
   serialized = serializeEvent(event);
 });
 

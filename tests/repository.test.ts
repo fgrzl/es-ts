@@ -32,8 +32,8 @@ describe("Repository", () => {
   it("should save pending audits in a single audit stream given multiple audits on the same aggregate", async () => {
     const store = newInMemoryEventStore();
     const repo = newRepository(store);
-    const auditEventA = defineEvent<{}>("repository.audit.a", "cats").create({});
-    const auditEventB = defineEvent<{}>("repository.audit.b", "cats").create({});
+    const auditEventA = defineEvent<{}>("cats", "repository.audit.a").create({});
+    const auditEventB = defineEvent<{}>("cats", "repository.audit.b").create({});
     const aggregate = createCat("cat-3").aggregate;
 
     aggregate.audit(auditEventA);

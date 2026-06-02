@@ -1,5 +1,5 @@
 {
-  "name": "es-ts",
+  "name": "@fgrzl/es",
   "version": "0.1.0",
   "private": true,
   "description": "A TypeScript port of the fgrzl/es event sourcing library.",
@@ -10,11 +10,10 @@
   "scripts": {
     "build": "vp pack",
     "test": "vp test",
-    "bench": "cross-env NODE_ENV=production vp exec vitest bench --run --reporter=default benches/tier1/*.bench.ts",
-    "bench:tier1": "npm run bench",
+    "bench": "npm run bench:tier1 && npm run bench:tier2 && npm run bench:tier3",
+    "bench:tier1": "cross-env NODE_ENV=production vp exec vitest bench --run --reporter=default benches/tier1/*.bench.ts",
     "bench:tier2": "cross-env NODE_ENV=production vp exec vitest bench --run --reporter=default benches/tier2/*.bench.ts",
     "bench:tier3": "cross-env NODE_ENV=production vp exec vitest bench --run --reporter=default benches/tier3/*.bench.ts",
-    "bench:all": "npm run bench:tier1 && npm run bench:tier2 && npm run bench:tier3",
     "fmt": "vp fmt",
     "lint": "vp lint",
     "dev": "vp dev"
@@ -25,10 +24,8 @@
   },
   "devDependencies": {
     "@types/node": "^25.9.1",
-    "@types/uuid": "^11.0.0",
-    "cross-env": "^7.0.3",
+    "cross-env": "^10.1.0",
     "typescript": "^6.0.3",
-    "vite": "^8.0.16",
     "vite-plugin-dts": "^5.0.2",
     "vite-plus": "^0.1.24",
     "vitest": "^4.1.8"
