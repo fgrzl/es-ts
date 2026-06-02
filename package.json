@@ -1,0 +1,37 @@
+{
+  "name": "es-ts",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A TypeScript port of the fgrzl/es event sourcing library.",
+  "license": "Apache-2.0",
+  "main": "dist/es-ts.cjs.js",
+  "module": "dist/es-ts.es.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "vp pack",
+    "test": "vp test",
+    "bench": "cross-env NODE_ENV=production vp exec vitest bench --run --reporter=default benches/tier1/*.bench.ts",
+    "bench:tier1": "npm run bench",
+    "bench:tier2": "cross-env NODE_ENV=production vp exec vitest bench --run --reporter=default benches/tier2/*.bench.ts",
+    "bench:tier3": "cross-env NODE_ENV=production vp exec vitest bench --run --reporter=default benches/tier3/*.bench.ts",
+    "bench:all": "npm run bench:tier1 && npm run bench:tier2 && npm run bench:tier3",
+    "fmt": "vp fmt",
+    "lint": "vp lint",
+    "dev": "vp dev"
+  },
+  "dependencies": {
+    "@opentelemetry/api": "^1.9.1",
+    "uuid": "^14.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.1",
+    "@types/uuid": "^11.0.0",
+    "cross-env": "^7.0.3",
+    "typescript": "^6.0.3",
+    "vite": "^8.0.16",
+    "vite-plugin-dts": "^5.0.2",
+    "vite-plus": "^0.1.24",
+    "vitest": "^4.1.8"
+  },
+  "packageManager": "npm@11.16.0"
+}

@@ -1,0 +1,19 @@
+# Ensure consistent line endings
+* text=auto
+*.ts text
+*.js text
+*.json text
+*.md text
+
+# Keep binaries as binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+
+# Ignore generated build output
+/dist/ export-ignore
+/node_modules/ export-ignore
+
+# Language statistics
+*.ts linguist-language=TypeScript
