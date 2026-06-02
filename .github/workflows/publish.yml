@@ -28,4 +28,3 @@ jobs:
 
       - name: Publish package
         run: npm publish --access public
-
