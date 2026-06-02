@@ -28,9 +28,5 @@ jobs:
         run: npm run build
 
       - name: Publish package
-        run: |
-          if [ "$(node -pe "require('./package.json').private")" = "true" ]; then
-            echo "Package is private; skipping publish."
-          else
-            npm publish --access public
-          fi
+        run: npm publish --access public
+
