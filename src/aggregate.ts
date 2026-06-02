@@ -40,6 +40,11 @@ export interface PendingAudit {
   timestamp: number;
 }
 
+interface InternalAggregate extends Aggregate {
+  getUncommittedEventRefs(): DomainEvent[];
+  getPendingAuditRefs(): PendingAudit[];
+}
+
 const errRegisterHandlerAlreadyExists = "RegisterHandler: handler for event already exists";
 const errRaiseInvalidAggregateArea = "Raise: aggregate area is not valid for event";
 const errAuditInvalidAggregateArea = "Audit: aggregate area is not valid for event";
@@ -63,7 +68,7 @@ function createAggregateBase(
   entity: Entity,
   correlationId?: string,
   causationId?: string,
-): Aggregate {
+): Aggregate & InternalAggregate {
   const state: AggregateState = {
     entity,
     correlationId: correlationId ?? uuid(),
@@ -88,6 +93,8 @@ function createAggregateBase(
     state.uncommitted.push(event);
   };
   const getUncommittedEvents = (): DomainEvent[] => [...state.uncommitted];
+  const getUncommittedEventRefs = (): DomainEvent[] => state.uncommitted;
+  const getPendingAuditRefs = (): PendingAudit[] => state.pendingAudits;
   const getUncommittedSequence = (): number => state.committed.length + state.uncommitted.length;
 
   const registerHandler = <E extends DomainEvent = DomainEvent>(
@@ -157,9 +164,10 @@ function createAggregateBase(
   };
 
   const load = (events: DomainEvent[]): void => {
+    const committed = state.committed;
     for (const event of events) {
       applyEvent(event);
-      appendCommitted(event);
+      committed.push(event);
     }
   };
 
@@ -196,6 +204,8 @@ function createAggregateBase(
     getCommittedSequence,
     appendUncommitted,
     getUncommittedEvents,
+    getUncommittedEventRefs,
+    getPendingAuditRefs,
     getUncommittedSequence,
     registerHandler,
     raise,

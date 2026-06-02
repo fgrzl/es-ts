@@ -236,11 +236,15 @@ export function deserializeEvent(json: string): DomainEvent {
 
   const content = envelope.content as Record<string, unknown>;
   const metadata = content.metadata;
-  if ("metadata" in content) {
-    delete content.metadata;
+  const payload: Record<string, unknown> = {};
+
+  for (const key in content) {
+    if (key !== "metadata") {
+      payload[key] = content[key];
+    }
   }
 
-  const event = descriptor.create(content as DomainEventPayload);
+  const event = descriptor.create(payload as DomainEventPayload);
   if (metadata !== undefined) {
     event.setMetadata(fromJsonEventMetadata(metadata));
   }

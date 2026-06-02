@@ -26,7 +26,7 @@ export function newInMemoryEventStore(): InMemoryEventStore {
     async loadEvents(_ctx: Context, entity: Entity, minSequence: number): Promise<DomainEvent[]> {
       const events = data.get(entityKey(entity)) ?? [];
       if (minSequence <= 0) {
-        return events.slice();
+        return events;
       }
 
       const start = events.findIndex((event) => event.getSequence() >= minSequence);
