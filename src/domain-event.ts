@@ -90,14 +90,47 @@ export function createDomainEvent<T extends DomainEventPayload>(
       }
     },
     toJSON: () => {
+      const payloadJson = toSnakeCaseRecord(payload) as Record<string, unknown>;
       if (!metadata) {
-        return payload;
+        return payloadJson;
       }
-      return { ...payload, metadata: toJsonEventMetadata(metadata) };
+      return { ...payloadJson, metadata: toJsonEventMetadata(metadata) };
     },
   } as DomainEvent & T;
 
   return event;
+}
+
+function snakeCase(value: string): string {
+  return value.replace(/([A-Z])/g, "_$1").toLowerCase();
+}
+
+function camelCase(value: string): string {
+  return value.replace(/_([a-z])/g, (_, char) => char.toUpperCase());
+}
+
+function mapObjectKeys(value: unknown, mapper: (key: string) => string): unknown {
+  if (Array.isArray(value)) {
+    return value.map((item) => mapObjectKeys(item, mapper));
+  }
+
+  if (!isPlainObject(value)) {
+    return value;
+  }
+
+  const result: Record<string, unknown> = {};
+  for (const key of Object.keys(value)) {
+    result[mapper(key)] = mapObjectKeys(value[key], mapper);
+  }
+  return result;
+}
+
+function toSnakeCaseRecord(value: unknown): unknown {
+  return mapObjectKeys(value, snakeCase);
+}
+
+function toCamelCaseRecord(value: unknown): unknown {
+  return mapObjectKeys(value, camelCase);
 }
 
 function toJsonEntity(entity: Entity): JsonEntity {
@@ -206,8 +239,11 @@ export function serializeEvent(event: DomainEvent): string {
   const payload = getEventPayload(event);
   const metadata = event.getMetadata();
   const content: Record<string, unknown> = metadata
-    ? { ...payload, metadata: toJsonEventMetadata(metadata) }
-    : payload;
+    ? {
+        ...(toSnakeCaseRecord(payload) as Record<string, unknown>),
+        metadata: toJsonEventMetadata(metadata),
+      }
+    : (toSnakeCaseRecord(payload) as Record<string, unknown>);
 
   return JSON.stringify({ $type: event.getDiscriminator(), content });
 }
@@ -236,14 +272,15 @@ export function deserializeEvent(json: string): DomainEvent {
 
   const content = envelope.content as Record<string, unknown>;
   const metadata = content.metadata;
-  const payload: Record<string, unknown> = {};
+  const rawPayload: Record<string, unknown> = {};
 
   for (const key in content) {
     if (key !== "metadata") {
-      payload[key] = content[key];
+      rawPayload[key] = content[key];
     }
   }
 
+  const payload = toCamelCaseRecord(rawPayload) as Record<string, unknown>;
   const event = descriptor.create(payload as DomainEventPayload);
   if (metadata !== undefined) {
     event.setMetadata(fromJsonEventMetadata(metadata));
