@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "@opentelemetry/api": "^1.9.1",
-    "uuid": "^14.0.0"
+    "uuid": "^14.0.1"
   },
   "devDependencies": {
     "@types/node": "^25.9.1",
