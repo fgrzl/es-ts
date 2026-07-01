@@ -23,7 +23,7 @@
     "uuid": "^14.0.0"
   },
   "devDependencies": {
-    "@types/node": "^25.9.1",
+    "@types/node": "^26.1.0",
     "cross-env": "^10.1.0",
     "typescript": "^6.0.3",
     "vite-plugin-dts": "^5.0.2",
